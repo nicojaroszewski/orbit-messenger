@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -13,6 +14,8 @@ import { Id } from "@/convex/_generated/dataModel";
 
 export default function DiscoverPage() {
   const t = useTranslations();
+  const locale = useLocale();
+  const router = useRouter();
   const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [sendingTo, setSendingTo] = useState<Id<"users"> | null>(null);
@@ -94,6 +97,7 @@ export default function DiscoverPage() {
                   currentUserId={user?.id || ""}
                   onSendInvite={handleSendInvite}
                   isSending={sendingTo === userItem._id}
+                  onViewProfile={() => router.push(`/${locale}/profile/${userItem._id}`)}
                   t={t}
                 />
               ))}
@@ -128,6 +132,7 @@ interface UserCardProps {
   };
   currentUserId: string;
   onSendInvite: (userId: Id<"users">) => void;
+  onViewProfile: () => void;
   isSending: boolean;
   t: ReturnType<typeof useTranslations>;
 }
@@ -136,6 +141,7 @@ function UserCard({
   user,
   currentUserId,
   onSendInvite,
+  onViewProfile,
   isSending,
   t,
 }: UserCardProps) {
@@ -186,22 +192,25 @@ function UserCard({
   return (
     <Card variant="glass" interactive>
       <CardContent className="p-4 flex items-center gap-4">
-        <Avatar
-          src={user.avatarUrl}
-          name={user.name}
-          size="lg"
-          showStatus
-          isOnline={user.isOnline}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-star-white">{user.name}</p>
+        <button onClick={onViewProfile} className="shrink-0">
+          <Avatar
+            src={user.avatarUrl}
+            name={user.name}
+            size="lg"
+            showStatus
+            isOnline={user.isOnline}
+            className="hover:ring-orbit-blue transition-all"
+          />
+        </button>
+        <button onClick={onViewProfile} className="flex-1 min-w-0 text-left">
+          <p className="font-medium text-star-white hover:text-orbit-blue transition-colors">{user.name}</p>
           <p className="text-sm text-nebula-gray">@{user.username}</p>
           {user.bio && (
             <p className="text-sm text-nebula-gray/80 mt-1 line-clamp-2">
               {user.bio}
             </p>
           )}
-        </div>
+        </button>
         <Button
           size="sm"
           variant={

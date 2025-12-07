@@ -11,11 +11,14 @@ export const sendMessage = mutation({
       v.union(
         v.literal("text"),
         v.literal("image"),
-        v.literal("file")
+        v.literal("file"),
+        v.literal("voice")
       )
     ),
     attachmentUrl: v.optional(v.string()),
     attachmentName: v.optional(v.string()),
+    attachmentSize: v.optional(v.number()),
+    replyToId: v.optional(v.id("messages")),
   },
   handler: async (ctx, args) => {
     const currentUser = await ctx.db
@@ -39,6 +42,8 @@ export const sendMessage = mutation({
       type: args.type || "text",
       attachmentUrl: args.attachmentUrl,
       attachmentName: args.attachmentName,
+      attachmentSize: args.attachmentSize,
+      replyToId: args.replyToId,
       readBy: [currentUser._id],
       createdAt: Date.now(),
     });
@@ -103,10 +108,25 @@ export const getMessages = query({
       .order("desc")
       .take(args.limit || 50);
 
-    // Fetch sender info for each message
+    // Fetch sender info and reply info for each message
     const messagesWithSenders = await Promise.all(
       messages.map(async (message) => {
         const sender = await ctx.db.get(message.senderId);
+
+        // Get reply-to message if exists
+        let replyToMessage = null;
+        if (message.replyToId) {
+          const replyTo = await ctx.db.get(message.replyToId);
+          if (replyTo) {
+            const replyToSender = await ctx.db.get(replyTo.senderId);
+            replyToMessage = {
+              _id: replyTo._id,
+              content: replyTo.content,
+              senderName: replyToSender?.name || "Unknown",
+            };
+          }
+        }
+
         return {
           ...message,
           sender: sender
@@ -118,6 +138,7 @@ export const getMessages = query({
                 clerkId: sender.clerkId,
               }
             : null,
+          replyToMessage,
         };
       })
     );
@@ -313,5 +334,125 @@ export const getUnreadCount = query({
     }
 
     return totalUnread;
+  },
+});
+
+// Edit a message
+export const editMessage = mutation({
+  args: {
+    messageId: v.id("messages"),
+    clerkId: v.string(),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!currentUser) throw new Error("User not found");
+
+    const message = await ctx.db.get(args.messageId);
+    if (!message) throw new Error("Message not found");
+
+    if (message.senderId !== currentUser._id) {
+      throw new Error("Can only edit your own messages");
+    }
+
+    if (message.deletedAt) {
+      throw new Error("Cannot edit deleted message");
+    }
+
+    await ctx.db.patch(args.messageId, {
+      content: args.content,
+      editedAt: Date.now(),
+    });
+
+    return args.messageId;
+  },
+});
+
+// Get a single message by ID
+export const getMessage = query({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const message = await ctx.db.get(args.messageId);
+    if (!message) return null;
+
+    const sender = await ctx.db.get(message.senderId);
+
+    return {
+      ...message,
+      sender: sender
+        ? {
+            _id: sender._id,
+            name: sender.name,
+            avatarUrl: sender.avatarUrl,
+          }
+        : null,
+    };
+  },
+});
+
+// Search messages in a conversation
+export const searchMessages = query({
+  args: {
+    conversationId: v.id("conversations"),
+    clerkId: v.string(),
+    searchTerm: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!args.searchTerm || args.searchTerm.length < 2) {
+      return [];
+    }
+
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!currentUser) return [];
+
+    const conversation = await ctx.db.get(args.conversationId);
+    if (!conversation) return [];
+
+    if (!conversation.participants.includes(currentUser._id)) {
+      return [];
+    }
+
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_conversation", (q) =>
+        q.eq("conversationId", args.conversationId)
+      )
+      .collect();
+
+    const searchLower = args.searchTerm.toLowerCase();
+    const matchingMessages = messages.filter(
+      (m) =>
+        !m.deletedAt &&
+        m.content.toLowerCase().includes(searchLower)
+    );
+
+    // Fetch sender info
+    const messagesWithSenders = await Promise.all(
+      matchingMessages.map(async (message) => {
+        const sender = await ctx.db.get(message.senderId);
+        return {
+          ...message,
+          sender: sender
+            ? {
+                _id: sender._id,
+                name: sender.name,
+                avatarUrl: sender.avatarUrl,
+              }
+            : null,
+        };
+      })
+    );
+
+    return messagesWithSenders;
   },
 });

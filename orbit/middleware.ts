@@ -17,6 +17,18 @@ const isPublicRoute = createRouteMatcher([
   "/:locale/sign-up(.*)",
 ]);
 
+// Routes that authenticated users should be redirected away from
+const isAuthRoute = createRouteMatcher([
+  "/:locale/sign-in(.*)",
+  "/:locale/sign-up(.*)",
+]);
+
+// Landing page routes
+const isLandingRoute = createRouteMatcher([
+  "/",
+  "/:locale",
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   // Handle internationalization first
   const pathname = req.nextUrl.pathname;
@@ -33,12 +45,24 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(url);
   }
 
-  // Check authentication for protected routes
+  // Check authentication
   const { userId } = await auth();
 
+  // Extract locale from path
+  const locale = pathname.split("/")[1] || defaultLocale;
+
+  // Redirect authenticated users away from auth pages to dashboard
+  if (userId && (isAuthRoute(req) || isLandingRoute(req))) {
+    // Check if the pathname is just the locale (landing page)
+    const isJustLocale = pathname === `/${locale}` || pathname === `/${locale}/`;
+    if (isAuthRoute(req) || isJustLocale) {
+      const dashboardUrl = new URL(`/${locale}/dashboard`, req.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
+  }
+
+  // Redirect unauthenticated users from protected routes to sign-in
   if (!isPublicRoute(req) && !userId) {
-    // Extract locale from path
-    const locale = pathname.split("/")[1] || defaultLocale;
     const signInUrl = new URL(`/${locale}/sign-in`, req.url);
     signInUrl.searchParams.set("redirect_url", req.url);
     return NextResponse.redirect(signInUrl);

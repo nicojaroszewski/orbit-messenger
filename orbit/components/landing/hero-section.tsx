@@ -8,6 +8,14 @@ import { Button } from "@/components/ui";
 import { staggerContainer, listItem, orbitalFloat } from "@/lib/animations";
 import { Rocket, Sparkles } from "lucide-react";
 
+// Pre-computed star positions to avoid hydration mismatch
+const STARS = Array.from({ length: 50 }, (_, i) => ({
+  left: ((i * 17 + 23) % 100),
+  top: ((i * 31 + 47) % 100),
+  delay: ((i * 7) % 30) / 10,
+  opacity: 0.2 + ((i * 13) % 50) / 100,
+}));
+
 export function HeroSection() {
   const t = useTranslations("landing.hero");
   const params = useParams();
@@ -20,15 +28,15 @@ export function HeroSection() {
 
       {/* Animated Stars */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(50)].map((_, i) => (
+        {STARS.map((star, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 bg-star-white rounded-full twinkle"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: Math.random() * 0.5 + 0.2,
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              animationDelay: `${star.delay}s`,
+              opacity: star.opacity,
             }}
           />
         ))}

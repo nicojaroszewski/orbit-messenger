@@ -28,9 +28,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       primary:
         "bg-gradient-to-r from-orbit-blue to-blue-600 text-star-white shadow-[0_4px_14px_rgba(59,130,246,0.25)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.35)]",
       secondary:
-        "bg-lunar-graphite text-star-white border border-white/10 hover:border-orbit-blue hover:bg-orbital-navy",
+        "bg-white text-gray-900 border border-gray-200 hover:border-orbit-blue hover:bg-gray-50",
       ghost:
-        "bg-transparent text-star-white hover:bg-lunar-graphite/50",
+        "bg-transparent text-gray-700 hover:bg-gray-100",
       danger:
         "bg-gradient-to-r from-flare-red to-red-600 text-star-white shadow-[0_4px_14px_rgba(239,68,68,0.25)]",
     };

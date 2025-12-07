@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Card, CardContent, Input, Avatar } from "@/components/ui";
 import { staggerContainer, listItem } from "@/lib/animations";
+import { useTheme } from "@/components/providers/theme-provider";
 import {
   User,
   Bell,
@@ -19,6 +20,9 @@ import {
   Check,
   Loader2,
   Camera,
+  Moon,
+  Sun,
+  Monitor,
 } from "lucide-react";
 
 type Tab = "profile" | "notifications" | "language" | "appearance" | "privacy";
@@ -400,15 +404,29 @@ interface AppearanceSettingsProps {
 }
 
 function AppearanceSettings({ userData, userId, t }: AppearanceSettingsProps) {
-  const [selectedTheme, setSelectedTheme] = useState(
-    userData?.settings?.theme || "dark"
-  );
+  const { theme, setTheme } = useTheme();
+  const updateSettings = useMutation(api.users.updateSettings);
 
   const themes = [
-    { id: "dark", name: t("settings.themeDark"), icon: "🌙" },
-    { id: "light", name: t("settings.themeLight"), icon: "☀️" },
-    { id: "system", name: t("settings.themeSystem"), icon: "💻" },
+    { id: "dark" as const, name: t("settings.themeDark"), icon: Moon },
+    { id: "light" as const, name: t("settings.themeLight"), icon: Sun },
+    { id: "system" as const, name: t("settings.themeSystem"), icon: Monitor },
   ];
+
+  const handleThemeChange = async (newTheme: "dark" | "light" | "system") => {
+    setTheme(newTheme);
+    // Also save to Convex for persistence across devices
+    if (userId) {
+      try {
+        await updateSettings({
+          clerkId: userId,
+          settings: { theme: newTheme },
+        });
+      } catch (error) {
+        console.error("Failed to save theme preference:", error);
+      }
+    }
+  };
 
   return (
     <Card variant="glass">
@@ -422,22 +440,28 @@ function AppearanceSettings({ userData, userId, t }: AppearanceSettingsProps) {
             {t("settings.theme")}
           </label>
           <div className="grid grid-cols-3 gap-3">
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                onClick={() => setSelectedTheme(theme.id)}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-                  selectedTheme === theme.id
-                    ? "border-orbit-blue bg-orbit-blue/10"
-                    : "border-white/10 hover:border-white/20 bg-lunar-graphite/30"
-                }`}
-              >
-                <span className="text-2xl">{theme.icon}</span>
-                <span className="text-sm font-medium text-star-white">
-                  {theme.name}
-                </span>
-              </button>
-            ))}
+            {themes.map((themeOption) => {
+              const Icon = themeOption.icon;
+              return (
+                <button
+                  key={themeOption.id}
+                  onClick={() => handleThemeChange(themeOption.id)}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
+                    theme === themeOption.id
+                      ? "border-orbit-blue bg-orbit-blue/10"
+                      : "border-white/10 hover:border-white/20 bg-lunar-graphite/30"
+                  }`}
+                >
+                  <Icon className="w-6 h-6 text-star-white" />
+                  <span className="text-sm font-medium text-star-white">
+                    {themeOption.name}
+                  </span>
+                  {theme === themeOption.id && (
+                    <Check className="w-4 h-4 text-orbit-blue" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </CardContent>

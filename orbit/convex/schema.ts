@@ -54,16 +54,30 @@ export default defineSchema({
       v.literal("text"),
       v.literal("image"),
       v.literal("file"),
-      v.literal("system")
+      v.literal("system"),
+      v.literal("voice")
     ),
     attachmentUrl: v.optional(v.string()),
     attachmentName: v.optional(v.string()),
+    attachmentSize: v.optional(v.number()),
+    replyToId: v.optional(v.id("messages")),
+    editedAt: v.optional(v.number()),
     readBy: v.array(v.id("users")),
     deletedAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_conversation", ["conversationId"])
     .index("by_conversation_created", ["conversationId", "createdAt"]),
+
+  // Message reactions table
+  reactions: defineTable({
+    messageId: v.id("messages"),
+    userId: v.id("users"),
+    emoji: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_message", ["messageId"])
+    .index("by_user_message", ["userId", "messageId"]),
 
   // Invitations table
   invitations: defineTable({

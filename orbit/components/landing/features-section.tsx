@@ -113,14 +113,14 @@ export function FeaturesSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-16 relative"
         >
-          <div className="aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden border border-white/10 bg-orbital-navy/50 backdrop-blur-sm">
+          <div className="aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
             {/* Mock Chat Interface Preview */}
             <div className="h-full p-6 flex flex-col">
               {/* Header */}
-              <div className="flex items-center gap-3 pb-4 border-b border-white/10">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orbit-blue to-stellar-violet" />
                 <div>
-                  <p className="text-star-white font-medium">Orbit Team</p>
+                  <p className="text-gray-900 font-medium">Orbit Team</p>
                   <p className="text-xs text-aurora-green flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-aurora-green animate-pulse" />
                     Online
@@ -153,7 +153,7 @@ export function FeaturesSection() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 1 }}
-                  className="flex items-center gap-2 text-sm text-nebula-gray"
+                  className="flex items-center gap-2 text-sm text-gray-500"
                 >
                   <div className="flex gap-1">
                     <span className="typing-dot w-2 h-2 bg-signal-teal rounded-full" />
@@ -166,7 +166,7 @@ export function FeaturesSection() {
 
               {/* Input Preview */}
               <div className="flex gap-3">
-                <div className="flex-1 h-10 rounded-xl bg-lunar-graphite border border-white/10 flex items-center px-4 text-nebula-gray text-sm">
+                <div className="flex-1 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center px-4 text-gray-400 text-sm">
                   Type a message...
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orbit-blue to-blue-600 flex items-center justify-center">

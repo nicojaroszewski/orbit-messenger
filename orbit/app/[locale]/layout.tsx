@@ -4,6 +4,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
 import { ConvexClientProvider } from "@/providers/convex-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -31,7 +32,26 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="dark">
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('orbit-theme') || 'system';
+                  var resolved = theme;
+                  if (theme === 'system') {
+                    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                  }
+                  document.documentElement.classList.add(resolved);
+                  document.documentElement.style.colorScheme = resolved;
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-cosmic-midnight text-star-white antialiased">
         <ClerkProvider
           appearance={{
@@ -56,7 +76,9 @@ export default async function LocaleLayout({
         >
           <ConvexClientProvider>
             <NextIntlClientProvider messages={messages}>
-              {children}
+              <ThemeProvider defaultTheme="system">
+                {children}
+              </ThemeProvider>
             </NextIntlClientProvider>
           </ConvexClientProvider>
         </ClerkProvider>

@@ -231,6 +231,71 @@ export const updateOnlineStatus = mutation({
   },
 });
 
+// Get user profile with stats
+export const getUserProfile = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) return null;
+
+    // Get connection count
+    const connections1 = await ctx.db
+      .query("connections")
+      .withIndex("by_user1", (q) => q.eq("user1", args.userId))
+      .collect();
+
+    const connections2 = await ctx.db
+      .query("connections")
+      .withIndex("by_user2", (q) => q.eq("user2", args.userId))
+      .collect();
+
+    const connectionCount = connections1.length + connections2.length;
+
+    return {
+      ...user,
+      connectionCount,
+    };
+  },
+});
+
+// Check if two users are connected
+export const checkConnection = query({
+  args: {
+    clerkId: v.string(),
+    otherUserId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!currentUser) return { isConnected: false, isSelf: false };
+
+    if (currentUser._id === args.otherUserId) {
+      return { isConnected: false, isSelf: true };
+    }
+
+    // Check if connected
+    const connection1 = await ctx.db
+      .query("connections")
+      .withIndex("by_user1", (q) => q.eq("user1", currentUser._id))
+      .filter((q) => q.eq(q.field("user2"), args.otherUserId))
+      .first();
+
+    const connection2 = await ctx.db
+      .query("connections")
+      .withIndex("by_user2", (q) => q.eq("user2", currentUser._id))
+      .filter((q) => q.eq(q.field("user1"), args.otherUserId))
+      .first();
+
+    return {
+      isConnected: !!(connection1 || connection2),
+      isSelf: false,
+    };
+  },
+});
+
 // Get user connections
 export const getConnections = query({
   args: { clerkId: v.string() },

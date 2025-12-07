@@ -12,7 +12,7 @@ export function Footer() {
   const otherLocale = locale === "en" ? "ru" : "en";
 
   return (
-    <footer className="py-12 px-4 border-t border-white/5">
+    <footer className="py-12 px-4 border-t border-gray-200 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Logo & Tagline */}
@@ -21,8 +21,8 @@ export function Footer() {
               <Rocket className="w-5 h-5 text-star-white" />
             </div>
             <div>
-              <h3 className="text-star-white font-semibold">Orbit</h3>
-              <p className="text-xs text-nebula-gray">{t("tagline")}</p>
+              <h3 className="text-gray-900 font-semibold">Orbit</h3>
+              <p className="text-xs text-gray-500">{t("tagline")}</p>
             </div>
           </div>
 
@@ -30,14 +30,14 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <Link
               href={`/${otherLocale}`}
-              className="text-sm text-nebula-gray hover:text-orbit-blue transition-colors"
+              className="text-sm text-gray-500 hover:text-orbit-blue transition-colors"
             >
               {otherLocale === "en" ? "English" : "Русский"}
             </Link>
           </div>
 
           {/* Copyright */}
-          <p className="text-sm text-nebula-gray">
+          <p className="text-sm text-gray-500">
             {t("copyright", { year: new Date().getFullYear() })}
           </p>
         </div>

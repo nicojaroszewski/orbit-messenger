@@ -4,7 +4,9 @@
    ORBIT - Cosmic Modern Design System
    ======================================== */
 
-:root {
+/* Dark theme (default) */
+:root,
+.dark {
   /* Backgrounds */
   --cosmic-midnight: #0A0F1A;
   --orbital-navy: #111827;
@@ -35,21 +37,24 @@
   --signal-glow: rgba(20, 184, 166, 0.15);
 
   /* Base colors for Tailwind */
-  --background: var(--cosmic-midnight);
-  --foreground: var(--star-white);
+  --background: #0A0F1A;
+  --foreground: #F8FAFC;
 }
 
-/* Light mode - Celestial Day */
-@media (prefers-color-scheme: light) {
-  :root {
-    --cosmic-midnight: #F8FAFC;
-    --orbital-navy: #F1F5F9;
-    --lunar-graphite: #E2E8F0;
-    --star-white: #0F172A;
-    --nebula-gray: #64748B;
-    --background: var(--cosmic-midnight);
-    --foreground: var(--star-white);
-  }
+/* Light theme */
+.light {
+  /* Backgrounds */
+  --cosmic-midnight: #F8FAFC;
+  --orbital-navy: #F1F5F9;
+  --lunar-graphite: #E2E8F0;
+
+  /* Text */
+  --star-white: #0F172A;
+  --nebula-gray: #64748B;
+
+  /* Base colors for Tailwind */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
 }
 
 @theme inline {
@@ -226,10 +231,10 @@ body {
 
 /* Glass Effect */
 .glass {
-  background: rgba(17, 24, 39, 0.7);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(248, 250, 252, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Avatar Glow Ring */

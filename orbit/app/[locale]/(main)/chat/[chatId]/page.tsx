@@ -142,9 +142,9 @@ export default function ChatPage() {
   const isOnline = !isGroup && conversation.otherParticipant?.isOnline;
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-white">
       {/* Header */}
-      <header className="shrink-0 px-4 py-3 border-b border-white/10 bg-orbital-navy/50 backdrop-blur-md">
+      <header className="shrink-0 px-4 py-3 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href={`/${locale}/chats`}>
@@ -157,24 +157,30 @@ export default function ChatPage() {
                 <Users className="w-5 h-5 text-star-white" />
               </div>
             ) : (
-              <Avatar
-                src={avatarUrl}
-                name={displayName || "User"}
-                size="md"
-                showStatus
-                isOnline={isOnline}
-              />
+              <Link href={`/${locale}/profile/${conversation.otherParticipant?._id}`}>
+                <Avatar
+                  src={avatarUrl}
+                  name={displayName || "User"}
+                  size="md"
+                  showStatus
+                  isOnline={isOnline}
+                  className="hover:ring-orbit-blue transition-all"
+                />
+              </Link>
             )}
-            <div>
-              <p className="font-medium text-star-white">{displayName}</p>
-              <p className="text-xs text-nebula-gray">
+            <Link
+              href={isGroup ? "#" : `/${locale}/profile/${conversation.otherParticipant?._id}`}
+              className={isGroup ? "cursor-default" : ""}
+            >
+              <p className={`font-medium text-gray-900 ${!isGroup && "hover:text-orbit-blue transition-colors"}`}>{displayName}</p>
+              <p className="text-xs text-gray-500">
                 {isGroup
                   ? `${conversation.participantUsers.length} ${t("chat.members")}`
                   : isOnline
                   ? t("chat.online")
                   : t("chat.offline")}
               </p>
-            </div>
+            </Link>
           </div>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="sm">
@@ -199,10 +205,10 @@ export default function ChatPage() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-orbit-blue/20 to-stellar-violet/20 flex items-center justify-center">
                 <Send className="w-8 h-8 text-orbit-blue" />
               </div>
-              <p className="text-star-white font-medium mb-2">
+              <p className="text-gray-900 font-medium mb-2">
                 {t("chat.startConversation")}
               </p>
-              <p className="text-sm text-nebula-gray">
+              <p className="text-sm text-gray-500">
                 {t("chat.sendFirstMessage", { name: displayName || "" })}
               </p>
             </div>
@@ -260,7 +266,7 @@ export default function ChatPage() {
       </div>
 
       {/* Message Input */}
-      <div className="shrink-0 px-4 py-4 border-t border-white/10 bg-orbital-navy/50 backdrop-blur-md">
+      <div className="shrink-0 px-4 py-4 border-t border-gray-200 bg-white">
         <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3">
             <Input
@@ -296,7 +302,7 @@ interface MessageBubbleProps {
   message: {
     _id: Id<"messages">;
     content: string;
-    type: "text" | "image" | "file" | "system";
+    type: "text" | "image" | "file" | "system" | "voice";
     createdAt: number;
     deletedAt?: number;
     sender?: {

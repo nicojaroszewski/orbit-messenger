@@ -56,7 +56,7 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
           routing="path"
           path={`/${locale}/sign-up`}
           signInUrl={`/${locale}/sign-in`}
-          fallbackRedirectUrl={`/${locale}/dashboard`}
+          forceRedirectUrl={`/${locale}/dashboard`}
         />
       </div>
 

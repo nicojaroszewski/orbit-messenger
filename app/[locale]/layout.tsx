@@ -4,6 +4,9 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
 import { ConvexClientProvider } from "@/providers/convex-provider";
+import { PWAProvider } from "@/components/providers/pwa-provider";
+import { NetworkStatus } from "@/components/ui/network-status";
+import { IOSInstallPrompt } from "@/components/pwa/ios-install-prompt";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -56,7 +59,11 @@ export default async function LocaleLayout({
         >
           <ConvexClientProvider>
             <NextIntlClientProvider messages={messages}>
-              {children}
+              <PWAProvider>
+                <NetworkStatus />
+                <IOSInstallPrompt />
+                {children}
+              </PWAProvider>
             </NextIntlClientProvider>
           </ConvexClientProvider>
         </ClerkProvider>

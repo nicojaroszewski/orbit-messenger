@@ -2,16 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share, Plus, X, Download, Smartphone } from "lucide-react";
+import { Share, Plus, X, Download, Smartphone, MoreVertical, Menu } from "lucide-react";
 import { usePWA } from "@/components/providers/pwa-provider";
 
 const STORAGE_KEY = "orbit-onboarding-install-seen";
 
+type InstructionType = "ios" | "samsung" | "android-other" | null;
+
 export function OnboardingInstallPrompt() {
-  const { isInstallable, isInstalled, isIOSSafari, triggerInstall } = usePWA();
+  const { isInstallable, isInstalled, isIOSSafari, isAndroid, isSamsungBrowser, triggerInstall } = usePWA();
   const [isVisible, setIsVisible] = useState(false);
-  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [showInstructions, setShowInstructions] = useState<InstructionType>(null);
   const [isInstalling, setIsInstalling] = useState(false);
+
+  // Determine if we need to show manual instructions (non-Chrome browsers)
+  const needsManualInstall = isIOSSafari || (isAndroid && !isInstallable);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -33,13 +38,13 @@ export function OnboardingInstallPrompt() {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    setShowIOSInstructions(false);
+    setShowInstructions(null);
     localStorage.setItem(STORAGE_KEY, "true");
   };
 
   const handleInstall = async () => {
     if (isInstallable) {
-      // Android/Chrome - trigger native install
+      // Chrome/Edge - trigger native install
       setIsInstalling(true);
       try {
         await triggerInstall();
@@ -47,15 +52,23 @@ export function OnboardingInstallPrompt() {
         setIsVisible(false);
       } catch (error) {
         console.error("Install failed:", error);
+        // If native install fails, show manual instructions
+        if (isSamsungBrowser) {
+          setShowInstructions("samsung");
+        } else if (isAndroid) {
+          setShowInstructions("android-other");
+        }
       } finally {
         setIsInstalling(false);
       }
     } else if (isIOSSafari) {
-      // iOS Safari - show instructions modal
-      setShowIOSInstructions(true);
+      setShowInstructions("ios");
+    } else if (isSamsungBrowser) {
+      setShowInstructions("samsung");
+    } else if (isAndroid) {
+      setShowInstructions("android-other");
     } else {
-      // Desktop or unsupported browser - just dismiss with a note
-      // The banner will show info about mobile installation
+      // Desktop or unsupported browser
       handleDismiss();
     }
   };
@@ -67,7 +80,7 @@ export function OnboardingInstallPrompt() {
     <>
       {/* Top Banner */}
       <AnimatePresence>
-        {isVisible && !showIOSInstructions && (
+        {isVisible && !showInstructions && (
           <motion.div
             initial={{ y: -100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -95,7 +108,7 @@ export function OnboardingInstallPrompt() {
               {/* Right: Actions */}
               <div className="flex items-center gap-2 flex-shrink-0">
                 {isInstallable ? (
-                  // Android/Chrome - Show install button
+                  // Chrome/supported browser - Show install button
                   <button
                     onClick={handleInstall}
                     disabled={isInstalling}
@@ -110,13 +123,17 @@ export function OnboardingInstallPrompt() {
                       {isInstalling ? "Installing..." : "Install"}
                     </span>
                   </button>
-                ) : isIOSSafari ? (
-                  // iOS Safari - Show how button
+                ) : needsManualInstall ? (
+                  // iOS Safari or Android without install prompt - Show how button
                   <button
                     onClick={handleInstall}
                     className="px-4 py-2 bg-white text-[#3B82F6] rounded-lg font-semibold text-sm flex items-center gap-1.5 hover:bg-white/90 transition-colors"
                   >
-                    <Share className="w-4 h-4" />
+                    {isIOSSafari ? (
+                      <Share className="w-4 h-4" />
+                    ) : (
+                      <MoreVertical className="w-4 h-4" />
+                    )}
                     <span className="hidden sm:inline">How to Install</span>
                   </button>
                 ) : (
@@ -140,9 +157,9 @@ export function OnboardingInstallPrompt() {
         )}
       </AnimatePresence>
 
-      {/* iOS Instructions Modal */}
+      {/* Instructions Modal */}
       <AnimatePresence>
-        {showIOSInstructions && (
+        {showInstructions && (
           <>
             {/* Backdrop */}
             <motion.div
@@ -151,7 +168,7 @@ export function OnboardingInstallPrompt() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-              onClick={() => setShowIOSInstructions(false)}
+              onClick={() => setShowInstructions(null)}
             />
 
             {/* Modal */}
@@ -168,7 +185,7 @@ export function OnboardingInstallPrompt() {
 
               {/* Close button */}
               <button
-                onClick={() => setShowIOSInstructions(false)}
+                onClick={() => setShowInstructions(null)}
                 className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
                 aria-label="Close"
               >
@@ -185,49 +202,114 @@ export function OnboardingInstallPrompt() {
                   </div>
                 </div>
 
-                {/* Title */}
+                {/* Title - varies by platform */}
                 <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
-                  Install Orbit on iPhone
+                  {showInstructions === "ios" && "Install Orbit on iPhone"}
+                  {showInstructions === "samsung" && "Install Orbit on Samsung"}
+                  {showInstructions === "android-other" && "Install Orbit"}
                 </h2>
                 <p className="text-gray-500 text-center text-sm mb-5">
-                  Follow these 3 simple steps:
+                  Follow these simple steps:
                 </p>
 
-                {/* Instructions */}
-                <div className="bg-gray-50 rounded-2xl p-4 space-y-4 mb-5">
-                  {/* Step 1 */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
-                      <Share className="h-5 w-5 text-[#3B82F6]" />
+                {/* Instructions - iOS */}
+                {showInstructions === "ios" && (
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-4 mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <Share className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">1. Tap the Share button</p>
+                        <p className="text-xs text-gray-500">At the bottom of Safari</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-sm">1. Tap the Share button</p>
-                      <p className="text-xs text-gray-500">At the bottom of Safari</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <Plus className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">2. Tap &quot;Add to Home Screen&quot;</p>
+                        <p className="text-xs text-gray-500">Scroll down to find it</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <span className="text-[#3B82F6] font-bold text-sm">Add</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">3. Tap &quot;Add&quot;</p>
+                        <p className="text-xs text-gray-500">In the top right corner</p>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Step 2 */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
-                      <Plus className="h-5 w-5 text-[#3B82F6]" />
+                {/* Instructions - Samsung Browser */}
+                {showInstructions === "samsung" && (
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-4 mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <Menu className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">1. Tap the menu button</p>
+                        <p className="text-xs text-gray-500">Three lines (≡) at the bottom right</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-sm">2. Tap &quot;Add to Home Screen&quot;</p>
-                      <p className="text-xs text-gray-500">Scroll down to find it</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <Plus className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">2. Tap &quot;Add page to&quot;</p>
+                        <p className="text-xs text-gray-500">Then select &quot;Home screen&quot;</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <span className="text-[#3B82F6] font-bold text-sm">Add</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">3. Tap &quot;Add&quot;</p>
+                        <p className="text-xs text-gray-500">Confirm to add to home screen</p>
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Step 3 */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
-                      <span className="text-[#3B82F6] font-bold text-sm">Add</span>
+                {/* Instructions - Other Android browsers */}
+                {showInstructions === "android-other" && (
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-4 mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <MoreVertical className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">1. Open browser menu</p>
+                        <p className="text-xs text-gray-500">Tap ⋮ or ≡ (usually top right)</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-sm">3. Tap &quot;Add&quot;</p>
-                      <p className="text-xs text-gray-500">In the top right corner</p>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <Plus className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">2. Find &quot;Add to Home screen&quot;</p>
+                        <p className="text-xs text-gray-500">Or &quot;Install app&quot; / &quot;Add shortcut&quot;</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <span className="text-[#3B82F6] font-bold text-sm">Add</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">3. Confirm installation</p>
+                        <p className="text-xs text-gray-500">Tap Add or Install when prompted</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <button
                   onClick={handleDismiss}

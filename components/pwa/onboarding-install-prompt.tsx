@@ -7,7 +7,7 @@ import { usePWA } from "@/components/providers/pwa-provider";
 
 const STORAGE_KEY = "orbit-onboarding-install-seen";
 
-type InstructionType = "ios" | "samsung" | "android-other" | null;
+type InstructionType = "ios" | "samsung" | "android-other" | "desktop" | null;
 
 export function OnboardingInstallPrompt() {
   const { isInstallable, isInstalled, isIOSSafari, isAndroid, isSamsungBrowser, triggerInstall } = usePWA();
@@ -15,8 +15,11 @@ export function OnboardingInstallPrompt() {
   const [showInstructions, setShowInstructions] = useState<InstructionType>(null);
   const [isInstalling, setIsInstalling] = useState(false);
 
-  // Determine if we need to show manual instructions (non-Chrome browsers)
+  // Determine if we need to show manual instructions (non-Chrome browsers on mobile)
   const needsManualInstall = isIOSSafari || (isAndroid && !isInstallable);
+
+  // Check if desktop
+  const isDesktop = typeof window !== "undefined" && !isAndroid && !isIOSSafari && !/iPhone|iPad|iPod/.test(navigator.userAgent);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -136,12 +139,16 @@ export function OnboardingInstallPrompt() {
                     )}
                     <span className="hidden sm:inline">How to Install</span>
                   </button>
-                ) : (
-                  // Desktop - Show info that it's for mobile
-                  <span className="text-xs text-white/70 hidden sm:block">
-                    Open on mobile to install
-                  </span>
-                )}
+                ) : isDesktop ? (
+                  // Desktop without install prompt - Show how button for desktop instructions
+                  <button
+                    onClick={() => setShowInstructions("desktop")}
+                    className="px-4 py-2 bg-white text-[#3B82F6] rounded-lg font-semibold text-sm flex items-center gap-1.5 hover:bg-white/90 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">How to Install</span>
+                  </button>
+                ) : null}
 
                 {/* Close button */}
                 <button
@@ -207,6 +214,7 @@ export function OnboardingInstallPrompt() {
                   {showInstructions === "ios" && "Install Orbit on iPhone"}
                   {showInstructions === "samsung" && "Install Orbit on Samsung"}
                   {showInstructions === "android-other" && "Install Orbit"}
+                  {showInstructions === "desktop" && "Install Orbit on Desktop"}
                 </h2>
                 <p className="text-gray-500 text-center text-sm mb-5">
                   Follow these simple steps:
@@ -306,6 +314,39 @@ export function OnboardingInstallPrompt() {
                       <div className="flex-1">
                         <p className="font-semibold text-gray-900 text-sm">3. Confirm installation</p>
                         <p className="text-xs text-gray-500">Tap Add or Install when prompted</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Instructions - Desktop browsers */}
+                {showInstructions === "desktop" && (
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-4 mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <MoreVertical className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">1. Open browser menu</p>
+                        <p className="text-xs text-gray-500">Click ⋮ in the top right corner</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <Download className="h-5 w-5 text-[#3B82F6]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">2. Click &quot;Install Orbit&quot;</p>
+                        <p className="text-xs text-gray-500">Or &quot;Install app&quot; / &quot;Add to desktop&quot;</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
+                        <span className="text-[#3B82F6] font-bold text-sm">Install</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900 text-sm">3. Confirm installation</p>
+                        <p className="text-xs text-gray-500">Click Install in the popup</p>
                       </div>
                     </div>
                   </div>

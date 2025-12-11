@@ -12,11 +12,10 @@ import { Button, Card, Avatar, Input } from "@/components/ui";
 import {
   ArrowLeft,
   Send,
-  MoreVertical,
-  Phone,
-  Video,
   Users,
   Loader2,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { formatRelativeTime, formatMessageTime } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
@@ -123,10 +122,10 @@ export default function ChatPage() {
 
   if (!conversation) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-4 border-orbit-blue/30 border-t-orbit-blue animate-spin" />
-          <p className="text-nebula-gray">{t("common.loading")}</p>
+          <p className="text-gray-500">{t("common.loading")}</p>
         </div>
       </div>
     );
@@ -142,9 +141,9 @@ export default function ChatPage() {
   const isOnline = !isGroup && conversation.otherParticipant?.isOnline;
 
   return (
-    <div className="h-screen flex flex-col bg-white">
+    <div className="h-[100dvh] flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <header className="shrink-0 px-4 py-3 border-b border-gray-200 bg-white">
+      <header className="shrink-0 px-4 py-3 border-b border-gray-200 bg-white z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href={`/${locale}/chats`}>
@@ -154,7 +153,7 @@ export default function ChatPage() {
             </Link>
             {isGroup ? (
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-stellar-violet to-orbit-blue flex items-center justify-center">
-                <Users className="w-5 h-5 text-star-white" />
+                <Users className="w-5 h-5 text-white" />
               </div>
             ) : (
               <Link href={`/${locale}/profile/${conversation.otherParticipant?._id}`}>
@@ -182,23 +181,12 @@ export default function ChatPage() {
               </p>
             </Link>
           </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm">
-              <Phone className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Video className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <MoreVertical className="w-5 h-5" />
-            </Button>
-          </div>
         </div>
       </header>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-3xl mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 min-h-0">
+        <div className="max-w-3xl mx-auto space-y-4 flex flex-col">
           {/* Date Separator or empty state */}
           {messages?.length === 0 && (
             <div className="text-center py-12">
@@ -231,6 +219,7 @@ export default function ChatPage() {
                   showAvatar={showAvatar}
                   locale={locale}
                   t={t}
+                  participantCount={conversation?.participantUsers.length || 2}
                 />
               );
             })}
@@ -250,11 +239,11 @@ export default function ChatPage() {
                   name={typingIndicators[0].user?.name || "User"}
                   size="sm"
                 />
-                <div className="bg-lunar-graphite/50 rounded-2xl px-4 py-3">
+                <div className="bg-gray-100 rounded-2xl px-4 py-3">
                   <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-signal-teal rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2 h-2 bg-signal-teal rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2 h-2 bg-signal-teal rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span className="w-2 h-2 bg-orbit-blue rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 bg-orbit-blue rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 bg-orbit-blue rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 </div>
               </motion.div>
@@ -266,9 +255,9 @@ export default function ChatPage() {
       </div>
 
       {/* Message Input */}
-      <div className="shrink-0 px-4 py-4 border-t border-gray-200 bg-white">
+      <div className="shrink-0 px-4 py-3 border-t border-gray-200 bg-white z-10 safe-area-bottom">
         <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Input
               ref={inputRef}
               placeholder={t("chat.messagePlaceholder")}
@@ -305,6 +294,7 @@ interface MessageBubbleProps {
     type: "text" | "image" | "file" | "system" | "voice";
     createdAt: number;
     deletedAt?: number;
+    readBy: Id<"users">[];
     sender?: {
       _id: Id<"users">;
       name: string;
@@ -316,6 +306,7 @@ interface MessageBubbleProps {
   showAvatar: boolean;
   locale: string;
   t: ReturnType<typeof useTranslations>;
+  participantCount: number;
 }
 
 function MessageBubble({
@@ -324,6 +315,7 @@ function MessageBubble({
   showAvatar,
   locale,
   t,
+  participantCount,
 }: MessageBubbleProps) {
   // System message
   if (message.type === "system") {
@@ -333,7 +325,7 @@ function MessageBubble({
         animate={{ opacity: 1, scale: 1 }}
         className="flex justify-center"
       >
-        <p className="text-xs text-nebula-gray bg-lunar-graphite/30 px-3 py-1 rounded-full">
+        <p className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
           {message.content}
         </p>
       </motion.div>
@@ -341,6 +333,10 @@ function MessageBubble({
   }
 
   const isDeleted = !!message.deletedAt;
+  // Check if message is read by others (excluding sender)
+  const isRead = message.readBy.length > 1;
+  // In a group, check if all participants have read
+  const isReadByAll = message.readBy.length >= participantCount;
 
   return (
     <motion.div
@@ -367,20 +363,32 @@ function MessageBubble({
           className={`rounded-2xl px-4 py-2.5 ${
             isOwn
               ? "bg-gradient-to-br from-orbit-blue to-orbit-blue/80 text-white"
-              : "bg-lunar-graphite/50 text-star-white"
+              : "bg-gray-100 text-gray-900"
           } ${isDeleted ? "opacity-60 italic" : ""}`}
         >
           <p className="text-sm whitespace-pre-wrap break-words">
             {isDeleted ? t("chat.messageDeleted") : message.content}
           </p>
         </div>
-        <p
-          className={`text-[10px] text-nebula-gray mt-1 ${
-            isOwn ? "text-right" : "text-left"
+        <div
+          className={`flex items-center gap-1 mt-1 ${
+            isOwn ? "flex-row-reverse" : "flex-row"
           }`}
         >
-          {formatMessageTime(message.createdAt, locale)}
-        </p>
+          <p className="text-[10px] text-gray-400">
+            {formatMessageTime(message.createdAt, locale)}
+          </p>
+          {/* Read receipt indicator - only show for own messages */}
+          {isOwn && !isDeleted && (
+            <span className={`${isRead ? "text-orbit-blue" : "text-gray-400"}`}>
+              {isReadByAll ? (
+                <CheckCheck className="w-3.5 h-3.5" />
+              ) : (
+                <Check className="w-3.5 h-3.5" />
+              )}
+            </span>
+          )}
+        </div>
       </div>
     </motion.div>
   );

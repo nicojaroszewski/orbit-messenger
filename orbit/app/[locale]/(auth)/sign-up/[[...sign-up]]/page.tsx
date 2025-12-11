@@ -13,44 +13,48 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
   const t = await getTranslations("auth.signUp");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 w-full">
       {/* Header */}
       <div className="text-center space-y-4">
         <Link href={`/${locale}`} className="inline-flex items-center gap-2">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orbit-blue to-stellar-violet flex items-center justify-center orbit-glow">
-            <Rocket className="w-6 h-6 text-star-white" />
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orbit-blue to-stellar-violet flex items-center justify-center shadow-lg">
+            <Rocket className="w-6 h-6 text-white" />
           </div>
         </Link>
-        <h1 className="text-2xl font-bold text-star-white">{t("title")}</h1>
-        <p className="text-nebula-gray">{t("subtitle")}</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+        <p className="text-gray-500">{t("subtitle")}</p>
       </div>
 
       {/* Clerk Sign Up */}
-      <div className="glass rounded-2xl p-6">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-200 overflow-hidden w-full flex justify-center">
         <SignUp
           appearance={{
             elements: {
-              rootBox: "w-full",
-              card: "bg-transparent shadow-none",
+              rootBox: "w-full mx-auto",
+              cardBox: "w-full mx-auto",
+              card: "bg-transparent shadow-none p-0 w-full mx-auto",
+              main: "w-full",
+              form: "w-full",
               headerTitle: "hidden",
               headerSubtitle: "hidden",
               socialButtonsBlockButton:
-                "bg-lunar-graphite border border-white/10 text-star-white hover:bg-orbital-navy hover:border-orbit-blue transition-all duration-300",
-              socialButtonsBlockButtonText: "text-star-white",
-              dividerLine: "bg-white/10",
-              dividerText: "text-nebula-gray",
-              formFieldLabel: "text-nebula-gray",
+                "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 transition-all duration-300",
+              socialButtonsBlockButtonText: "text-gray-700",
+              dividerLine: "bg-gray-200",
+              dividerText: "text-gray-500",
+              formFieldLabel: "text-gray-700",
               formFieldInput:
-                "bg-lunar-graphite border-white/10 text-star-white placeholder:text-nebula-gray focus:border-orbit-blue focus:ring-orbit-blue/20",
+                "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-orbit-blue focus:ring-orbit-blue/20",
               formButtonPrimary:
-                "bg-gradient-to-r from-orbit-blue to-blue-600 hover:from-orbit-blue/90 hover:to-blue-600/90 text-star-white",
+                "bg-gradient-to-r from-orbit-blue to-blue-600 hover:from-orbit-blue/90 hover:to-blue-600/90 text-white",
               footerActionLink: "text-orbit-blue hover:text-stellar-violet",
-              identityPreviewText: "text-star-white",
+              identityPreviewText: "text-gray-900",
               identityPreviewEditButton: "text-orbit-blue",
-              formFieldSuccessText: "text-aurora-green",
-              formFieldErrorText: "text-flare-red",
-              alertText: "text-star-white",
+              formFieldSuccessText: "text-green-600",
+              formFieldErrorText: "text-red-500",
+              alertText: "text-gray-900",
               formResendCodeLink: "text-orbit-blue",
+              footer: "hidden",
             },
           }}
           routing="path"
@@ -61,11 +65,11 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
       </div>
 
       {/* Sign In Link */}
-      <p className="text-center text-nebula-gray">
+      <p className="text-center text-gray-500">
         {t("hasAccount")}{" "}
         <Link
           href={`/${locale}/sign-in`}
-          className="text-orbit-blue hover:text-stellar-violet transition-colors"
+          className="text-orbit-blue hover:text-stellar-violet transition-colors font-medium"
         >
           {t("signIn")}
         </Link>

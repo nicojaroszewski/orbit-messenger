@@ -36,6 +36,14 @@
     },
     "features": {
       "title": "Built for Connection",
+      "chatPreview": {
+        "teamName": "Orbit Team",
+        "online": "Online",
+        "welcome": "Welcome to Orbit! ✨",
+        "reply": "This looks amazing! 🚀",
+        "typing": "Typing...",
+        "inputPlaceholder": "Type a message..."
+      },
       "realtime": {
         "title": "Real-Time Messaging",
         "description": "Messages arrive like shooting stars — instant, beautiful, and impossible to miss."

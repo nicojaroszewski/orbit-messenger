@@ -10,20 +10,16 @@ export default async function AuthLayout({ children, params }: AuthLayoutProps) 
   setRequestLocale(locale);
 
   return (
-    <div className="min-h-screen cosmic-bg flex items-center justify-center p-4">
-      {/* Animated Background */}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
+      {/* Subtle Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Orbital Rings */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-orbit-blue/10 rounded-full animate-[spin_60s_linear_infinite]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-stellar-violet/10 rounded-full animate-[spin_90s_linear_infinite_reverse]" />
-
-        {/* Glowing Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-orbit-blue/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-stellar-violet/10 rounded-full blur-3xl" />
+        {/* Soft gradient circles */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-orbit-blue/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-stellar-violet/5 rounded-full blur-3xl" />
       </div>
 
       {/* Auth Content */}
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md mx-auto">
         {children}
       </div>
     </div>

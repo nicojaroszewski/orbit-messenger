@@ -17,6 +17,9 @@ export default defineSchema({
       theme: v.union(v.literal("light"), v.literal("dark"), v.literal("system")),
       notifications: v.boolean(),
       language: v.union(v.literal("en"), v.literal("ru")),
+      showOnlineStatus: v.optional(v.boolean()),
+      readReceipts: v.optional(v.boolean()),
+      typingIndicators: v.optional(v.boolean()),
     }),
     createdAt: v.number(),
   })

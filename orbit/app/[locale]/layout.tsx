@@ -4,7 +4,6 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locales, type Locale } from "@/i18n/config";
 import { ConvexClientProvider } from "@/providers/convex-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -32,53 +31,32 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('orbit-theme') || 'system';
-                  var resolved = theme;
-                  if (theme === 'system') {
-                    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                  }
-                  document.documentElement.classList.add(resolved);
-                  document.documentElement.style.colorScheme = resolved;
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body className="min-h-screen bg-cosmic-midnight text-star-white antialiased">
+    <html lang={locale} className="light">
+      <body className="min-h-screen bg-white text-gray-900 antialiased">
         <ClerkProvider
           appearance={{
             variables: {
               colorPrimary: "#3B82F6",
-              colorBackground: "#111827",
-              colorText: "#F8FAFC",
-              colorInputBackground: "#1F2937",
-              colorInputText: "#F8FAFC",
+              colorBackground: "#FFFFFF",
+              colorText: "#111827",
+              colorInputBackground: "#F9FAFB",
+              colorInputText: "#111827",
             },
             elements: {
               formButtonPrimary: "btn-primary",
-              card: "glass",
-              headerTitle: "text-star-white",
-              headerSubtitle: "text-nebula-gray",
-              socialButtonsBlockButton: "btn-secondary",
-              formFieldLabel: "text-nebula-gray",
-              formFieldInput: "input-orbit",
+              card: "bg-white shadow-lg border border-gray-200",
+              headerTitle: "text-gray-900",
+              headerSubtitle: "text-gray-500",
+              socialButtonsBlockButton: "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50",
+              formFieldLabel: "text-gray-700",
+              formFieldInput: "bg-gray-50 border-gray-200 text-gray-900",
               footerActionLink: "text-orbit-blue hover:text-stellar-violet",
             },
           }}
         >
           <ConvexClientProvider>
             <NextIntlClientProvider messages={messages}>
-              <ThemeProvider defaultTheme="system">
-                {children}
-              </ThemeProvider>
+              {children}
             </NextIntlClientProvider>
           </ConvexClientProvider>
         </ClerkProvider>

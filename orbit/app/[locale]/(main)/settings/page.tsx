@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
@@ -9,23 +9,17 @@ import { motion } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Card, CardContent, Input, Avatar } from "@/components/ui";
 import { staggerContainer, listItem } from "@/lib/animations";
-import { useTheme } from "@/components/providers/theme-provider";
 import {
   User,
-  Bell,
   Globe,
-  Palette,
   Shield,
   LogOut,
   Check,
   Loader2,
   Camera,
-  Moon,
-  Sun,
-  Monitor,
 } from "lucide-react";
 
-type Tab = "profile" | "notifications" | "language" | "appearance" | "privacy";
+type Tab = "profile" | "language" | "privacy";
 
 export default function SettingsPage() {
   const t = useTranslations();
@@ -43,9 +37,7 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: "profile" as Tab, icon: User, label: t("profile.title") },
-    { id: "notifications" as Tab, icon: Bell, label: t("settings.notifications") },
     { id: "language" as Tab, icon: Globe, label: t("settings.language") },
-    { id: "appearance" as Tab, icon: Palette, label: t("settings.appearance") },
     { id: "privacy" as Tab, icon: Shield, label: t("settings.privacy") },
   ];
 
@@ -64,16 +56,16 @@ export default function SettingsPage() {
       >
         {/* Header */}
         <motion.div variants={listItem} className="space-y-2">
-          <h1 className="text-3xl font-bold text-star-white">
+          <h1 className="text-3xl font-bold text-gray-900">
             {t("settings.title")}
           </h1>
-          <p className="text-nebula-gray">{t("settings.general")}</p>
+          <p className="text-gray-500">{t("settings.general")}</p>
         </motion.div>
 
         <motion.div variants={listItem} className="flex flex-col md:flex-row gap-6">
           {/* Sidebar */}
           <div className="md:w-64 shrink-0">
-            <Card variant="glass">
+            <Card className="bg-white border border-gray-200 shadow-sm">
               <CardContent className="p-2">
                 <nav className="space-y-1">
                   {tabs.map((tab) => {
@@ -84,8 +76,8 @@ export default function SettingsPage() {
                         onClick={() => setActiveTab(tab.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                           activeTab === tab.id
-                            ? "bg-orbit-blue/20 text-orbit-blue"
-                            : "text-nebula-gray hover:text-star-white hover:bg-lunar-graphite/50"
+                            ? "bg-orbit-blue/10 text-orbit-blue"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -94,10 +86,10 @@ export default function SettingsPage() {
                     );
                   })}
                 </nav>
-                <div className="border-t border-white/10 mt-2 pt-2">
+                <div className="border-t border-gray-200 mt-2 pt-2">
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-flare-red hover:bg-flare-red/10 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <LogOut className="w-5 h-5" />
                     <span className="font-medium">{t("common.signOut")}</span>
@@ -116,13 +108,6 @@ export default function SettingsPage() {
                 t={t}
               />
             )}
-            {activeTab === "notifications" && (
-              <NotificationSettings
-                userData={currentUserData}
-                userId={user?.id || ""}
-                t={t}
-              />
-            )}
             {activeTab === "language" && (
               <LanguageSettings
                 userData={currentUserData}
@@ -131,14 +116,13 @@ export default function SettingsPage() {
                 t={t}
               />
             )}
-            {activeTab === "appearance" && (
-              <AppearanceSettings
+            {activeTab === "privacy" && (
+              <PrivacySettings
                 userData={currentUserData}
                 userId={user?.id || ""}
                 t={t}
               />
             )}
-            {activeTab === "privacy" && <PrivacySettings t={t} />}
           </div>
         </motion.div>
       </motion.div>
@@ -163,9 +147,13 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
   const [bio, setBio] = useState(userData?.bio || "");
   const [status, setStatus] = useState(userData?.status || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [saved, setSaved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateProfile = useMutation(api.users.updateProfile);
+  const updateAvatar = useMutation(api.users.updateAvatar);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
 
   const handleSave = async () => {
     if (!user) return;
@@ -185,10 +173,76 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
     setIsSaving(false);
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be less than 5MB");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      // Get upload URL from Convex
+      const uploadUrl = await generateUploadUrl();
+
+      // Upload the file
+      const result = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!result.ok) {
+        const errorText = await result.text();
+        console.error("Upload failed:", result.status, errorText);
+        throw new Error(`Failed to upload image: ${result.status}`);
+      }
+
+      const responseData = await result.json();
+      const storageId = responseData.storageId;
+
+      if (!storageId) {
+        console.error("No storageId in response:", responseData);
+        throw new Error("No storageId returned from upload");
+      }
+
+      // Update user avatar in database
+      await updateAvatar({
+        clerkId: user.id,
+        storageId,
+      });
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error("Failed to upload avatar:", error);
+      alert("Failed to upload image. Please try again.");
+    }
+    setIsUploadingAvatar(false);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
-    <Card variant="glass">
+    <Card className="bg-white border border-gray-200 shadow-sm">
       <CardContent className="p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-star-white">
+        <h2 className="text-lg font-semibold text-gray-900">
           {t("profile.editProfile")}
         </h2>
 
@@ -200,20 +254,35 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
               name={userData?.name || "User"}
               size="xl"
             />
-            <button className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-orbit-blue flex items-center justify-center text-white hover:bg-orbit-blue/80 transition-colors">
-              <Camera className="w-4 h-4" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarChange}
+              className="hidden"
+            />
+            <button
+              onClick={handleAvatarClick}
+              disabled={isUploadingAvatar}
+              className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-orbit-blue flex items-center justify-center text-white hover:bg-orbit-blue/80 transition-colors disabled:opacity-50"
+            >
+              {isUploadingAvatar ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
             </button>
           </div>
           <div>
-            <p className="font-medium text-star-white">{userData?.name}</p>
-            <p className="text-sm text-nebula-gray">@{userData?.username}</p>
+            <p className="font-medium text-gray-900">{userData?.name}</p>
+            <p className="text-sm text-gray-500">@{userData?.username}</p>
           </div>
         </div>
 
         {/* Form */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-star-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("profile.displayName")}
             </label>
             <Input
@@ -224,7 +293,7 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-star-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("profile.status")}
             </label>
             <Input
@@ -235,7 +304,7 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-star-white mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("profile.bio")}
             </label>
             <textarea
@@ -243,7 +312,7 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
               onChange={(e) => setBio(e.target.value)}
               placeholder={t("profile.bioPlaceholder")}
               rows={4}
-              className="w-full px-4 py-3 bg-lunar-graphite/50 border border-white/10 rounded-xl text-star-white placeholder:text-nebula-gray focus:outline-none focus:ring-2 focus:ring-orbit-blue/50 resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orbit-blue/50 resize-none"
             />
           </div>
         </div>
@@ -257,69 +326,6 @@ function ProfileSettings({ user, userData, t }: ProfileSettingsProps) {
             ) : null}
             {saved ? t("common.save") + "d" : t("common.save")}
           </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface NotificationSettingsProps {
-  userData: { settings: { notifications: boolean } } | null | undefined;
-  userId: string;
-  t: ReturnType<typeof useTranslations>;
-}
-
-function NotificationSettings({ userData, userId, t }: NotificationSettingsProps) {
-  const [notifications, setNotifications] = useState(
-    userData?.settings?.notifications ?? true
-  );
-  const [isSaving, setIsSaving] = useState(false);
-
-  const updateSettings = useMutation(api.users.updateSettings);
-
-  const handleToggle = async (value: boolean) => {
-    setNotifications(value);
-    setIsSaving(true);
-    try {
-      await updateSettings({
-        clerkId: userId,
-        settings: { notifications: value },
-      });
-    } catch (error) {
-      console.error("Failed to update settings:", error);
-    }
-    setIsSaving(false);
-  };
-
-  return (
-    <Card variant="glass">
-      <CardContent className="p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-star-white">
-          {t("settings.notifications")}
-        </h2>
-
-        <div className="space-y-4">
-          <ToggleSetting
-            label={t("settings.enableNotifications")}
-            description={t("settings.desktopNotifications")}
-            enabled={notifications}
-            onToggle={handleToggle}
-            loading={isSaving}
-          />
-
-          <ToggleSetting
-            label={t("settings.soundEnabled")}
-            description="Play sound for new messages"
-            enabled={true}
-            onToggle={() => {}}
-          />
-
-          <ToggleSetting
-            label={t("settings.emailNotifications")}
-            description="Receive email for important updates"
-            enabled={false}
-            onToggle={() => {}}
-          />
         </div>
       </CardContent>
     </Card>
@@ -366,9 +372,9 @@ function LanguageSettings({ userData, userId, locale, t }: LanguageSettingsProps
   };
 
   return (
-    <Card variant="glass">
+    <Card className="bg-white border border-gray-200 shadow-sm">
       <CardContent className="p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-star-white">
+        <h2 className="text-lg font-semibold text-gray-900">
           {t("settings.language")}
         </h2>
 
@@ -381,11 +387,11 @@ function LanguageSettings({ userData, userId, locale, t }: LanguageSettingsProps
               className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
                 selectedLanguage === lang.code
                   ? "border-orbit-blue bg-orbit-blue/10"
-                  : "border-white/10 hover:border-white/20 bg-lunar-graphite/30"
+                  : "border-gray-200 hover:border-gray-300 bg-gray-50"
               }`}
             >
               <span className="text-2xl">{lang.flag}</span>
-              <span className="font-medium text-star-white">{lang.name}</span>
+              <span className="font-medium text-gray-900">{lang.name}</span>
               {selectedLanguage === lang.code && (
                 <Check className="w-5 h-5 text-orbit-blue ml-auto" />
               )}
@@ -397,87 +403,61 @@ function LanguageSettings({ userData, userId, locale, t }: LanguageSettingsProps
   );
 }
 
-interface AppearanceSettingsProps {
-  userData: { settings: { theme: string } } | null | undefined;
+interface PrivacySettingsProps {
+  userData: {
+    settings: {
+      showOnlineStatus?: boolean;
+      readReceipts?: boolean;
+      typingIndicators?: boolean;
+    };
+  } | null | undefined;
   userId: string;
   t: ReturnType<typeof useTranslations>;
 }
 
-function AppearanceSettings({ userData, userId, t }: AppearanceSettingsProps) {
-  const { theme, setTheme } = useTheme();
+function PrivacySettings({ userData, userId, t }: PrivacySettingsProps) {
+  const [showOnlineStatus, setShowOnlineStatus] = useState(
+    userData?.settings?.showOnlineStatus ?? true
+  );
+  const [readReceipts, setReadReceipts] = useState(
+    userData?.settings?.readReceipts ?? true
+  );
+  const [typingIndicators, setTypingIndicators] = useState(
+    userData?.settings?.typingIndicators ?? true
+  );
+  const [savingField, setSavingField] = useState<string | null>(null);
+
   const updateSettings = useMutation(api.users.updateSettings);
 
-  const themes = [
-    { id: "dark" as const, name: t("settings.themeDark"), icon: Moon },
-    { id: "light" as const, name: t("settings.themeLight"), icon: Sun },
-    { id: "system" as const, name: t("settings.themeSystem"), icon: Monitor },
-  ];
+  const handleToggle = async (
+    field: "showOnlineStatus" | "readReceipts" | "typingIndicators",
+    value: boolean
+  ) => {
+    // Update local state immediately
+    if (field === "showOnlineStatus") setShowOnlineStatus(value);
+    if (field === "readReceipts") setReadReceipts(value);
+    if (field === "typingIndicators") setTypingIndicators(value);
 
-  const handleThemeChange = async (newTheme: "dark" | "light" | "system") => {
-    setTheme(newTheme);
-    // Also save to Convex for persistence across devices
-    if (userId) {
-      try {
-        await updateSettings({
-          clerkId: userId,
-          settings: { theme: newTheme },
-        });
-      } catch (error) {
-        console.error("Failed to save theme preference:", error);
-      }
+    setSavingField(field);
+    try {
+      await updateSettings({
+        clerkId: userId,
+        settings: { [field]: value },
+      });
+    } catch (error) {
+      console.error("Failed to update settings:", error);
+      // Revert on error
+      if (field === "showOnlineStatus") setShowOnlineStatus(!value);
+      if (field === "readReceipts") setReadReceipts(!value);
+      if (field === "typingIndicators") setTypingIndicators(!value);
     }
+    setSavingField(null);
   };
 
   return (
-    <Card variant="glass">
+    <Card className="bg-white border border-gray-200 shadow-sm">
       <CardContent className="p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-star-white">
-          {t("settings.appearance")}
-        </h2>
-
-        <div>
-          <label className="block text-sm font-medium text-nebula-gray mb-3">
-            {t("settings.theme")}
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {themes.map((themeOption) => {
-              const Icon = themeOption.icon;
-              return (
-                <button
-                  key={themeOption.id}
-                  onClick={() => handleThemeChange(themeOption.id)}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${
-                    theme === themeOption.id
-                      ? "border-orbit-blue bg-orbit-blue/10"
-                      : "border-white/10 hover:border-white/20 bg-lunar-graphite/30"
-                  }`}
-                >
-                  <Icon className="w-6 h-6 text-star-white" />
-                  <span className="text-sm font-medium text-star-white">
-                    {themeOption.name}
-                  </span>
-                  {theme === themeOption.id && (
-                    <Check className="w-4 h-4 text-orbit-blue" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-interface PrivacySettingsProps {
-  t: ReturnType<typeof useTranslations>;
-}
-
-function PrivacySettings({ t }: PrivacySettingsProps) {
-  return (
-    <Card variant="glass">
-      <CardContent className="p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-star-white">
+        <h2 className="text-lg font-semibold text-gray-900">
           {t("settings.privacy")}
         </h2>
 
@@ -485,33 +465,36 @@ function PrivacySettings({ t }: PrivacySettingsProps) {
           <ToggleSetting
             label={t("settings.showOnlineStatus")}
             description="Let others see when you're online"
-            enabled={true}
-            onToggle={() => {}}
+            enabled={showOnlineStatus}
+            onToggle={(value) => handleToggle("showOnlineStatus", value)}
+            loading={savingField === "showOnlineStatus"}
           />
 
           <ToggleSetting
             label={t("settings.readReceipts")}
             description="Show when you've read messages"
-            enabled={true}
-            onToggle={() => {}}
+            enabled={readReceipts}
+            onToggle={(value) => handleToggle("readReceipts", value)}
+            loading={savingField === "readReceipts"}
           />
 
           <ToggleSetting
             label={t("settings.typingIndicators")}
             description="Show when you're typing a message"
-            enabled={true}
-            onToggle={() => {}}
+            enabled={typingIndicators}
+            onToggle={(value) => handleToggle("typingIndicators", value)}
+            loading={savingField === "typingIndicators"}
           />
         </div>
 
-        <div className="pt-6 border-t border-white/10">
-          <h3 className="text-flare-red font-medium mb-2">
+        <div className="pt-6 border-t border-gray-200">
+          <h3 className="text-red-500 font-medium mb-2">
             {t("settings.deleteAccount")}
           </h3>
-          <p className="text-sm text-nebula-gray mb-4">
+          <p className="text-sm text-gray-500 mb-4">
             {t("settings.deleteAccountWarning")}
           </p>
-          <Button variant="secondary" className="text-flare-red border-flare-red/50 hover:bg-flare-red/10">
+          <Button variant="secondary" className="text-red-500 border-red-300 hover:bg-red-50">
             {t("settings.deleteAccount")}
           </Button>
         </div>
@@ -536,16 +519,16 @@ function ToggleSetting({
   loading,
 }: ToggleSettingProps) {
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl bg-lunar-graphite/30">
+    <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50">
       <div>
-        <p className="font-medium text-star-white">{label}</p>
-        <p className="text-sm text-nebula-gray">{description}</p>
+        <p className="font-medium text-gray-900">{label}</p>
+        <p className="text-sm text-gray-500">{description}</p>
       </div>
       <button
         onClick={() => onToggle(!enabled)}
         disabled={loading}
         className={`relative w-12 h-6 rounded-full transition-colors ${
-          enabled ? "bg-orbit-blue" : "bg-lunar-graphite"
+          enabled ? "bg-orbit-blue" : "bg-gray-300"
         }`}
       >
         <span

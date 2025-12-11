@@ -188,6 +188,9 @@ export const updateSettings = mutation({
       theme: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("system"))),
       notifications: v.optional(v.boolean()),
       language: v.optional(v.union(v.literal("en"), v.literal("ru"))),
+      showOnlineStatus: v.optional(v.boolean()),
+      readReceipts: v.optional(v.boolean()),
+      typingIndicators: v.optional(v.boolean()),
     }),
   },
   handler: async (ctx, args) => {
@@ -293,6 +296,32 @@ export const checkConnection = query({
       isConnected: !!(connection1 || connection2),
       isSelf: false,
     };
+  },
+});
+
+// Update user avatar
+export const updateAvatar = mutation({
+  args: {
+    clerkId: v.string(),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    // Get the URL from storage
+    const avatarUrl = await ctx.storage.getUrl(args.storageId);
+
+    if (!avatarUrl) {
+      throw new Error("Failed to get avatar URL");
+    }
+
+    await ctx.db.patch(user._id, { avatarUrl });
+    return user._id;
   },
 });
 

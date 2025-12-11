@@ -111,67 +111,67 @@ export function FeaturesSection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-16 relative"
+          className="mt-16 relative px-2 sm:px-0"
         >
-          <div className="aspect-video max-w-4xl mx-auto rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
+          <div className="aspect-[4/3] sm:aspect-video max-w-4xl mx-auto rounded-xl sm:rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-lg">
             {/* Mock Chat Interface Preview */}
-            <div className="h-full p-6 flex flex-col">
+            <div className="h-full p-3 sm:p-6 flex flex-col">
               {/* Header */}
-              <div className="flex items-center gap-3 pb-4 border-b border-gray-200">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orbit-blue to-stellar-violet" />
-                <div>
-                  <p className="text-gray-900 font-medium">Orbit Team</p>
-                  <p className="text-xs text-aurora-green flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-aurora-green animate-pulse" />
-                    Online
+              <div className="flex items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b border-gray-200">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-orbit-blue to-stellar-violet shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-gray-900 font-medium text-sm sm:text-base truncate">{t("chatPreview.teamName")}</p>
+                  <p className="text-[10px] sm:text-xs text-aurora-green flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-aurora-green animate-pulse" />
+                    {t("chatPreview.online")}
                   </p>
                 </div>
               </div>
 
               {/* Messages Preview */}
-              <div className="flex-1 py-4 space-y-3 overflow-hidden">
+              <div className="flex-1 py-3 sm:py-4 space-y-2 sm:space-y-3 overflow-hidden">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.6 }}
-                  className="message-received max-w-[70%] px-4 py-2 text-sm"
+                  className="message-received max-w-[85%] sm:max-w-[70%] px-3 sm:px-4 py-2 text-xs sm:text-sm"
                 >
-                  Welcome to Orbit! ✨
+                  {t("chatPreview.welcome")}
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.8 }}
-                  className="message-sent max-w-[70%] px-4 py-2 text-sm ml-auto"
+                  className="message-sent max-w-[85%] sm:max-w-[70%] px-3 sm:px-4 py-2 text-xs sm:text-sm ml-auto"
                 >
-                  This looks amazing! 🚀
+                  {t("chatPreview.reply")}
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 1 }}
-                  className="flex items-center gap-2 text-sm text-gray-500"
+                  className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-sm text-gray-500"
                 >
-                  <div className="flex gap-1">
-                    <span className="typing-dot w-2 h-2 bg-signal-teal rounded-full" />
-                    <span className="typing-dot w-2 h-2 bg-signal-teal rounded-full" />
-                    <span className="typing-dot w-2 h-2 bg-signal-teal rounded-full" />
+                  <div className="flex gap-0.5 sm:gap-1">
+                    <span className="typing-dot w-1.5 h-1.5 sm:w-2 sm:h-2 bg-signal-teal rounded-full" />
+                    <span className="typing-dot w-1.5 h-1.5 sm:w-2 sm:h-2 bg-signal-teal rounded-full" />
+                    <span className="typing-dot w-1.5 h-1.5 sm:w-2 sm:h-2 bg-signal-teal rounded-full" />
                   </div>
-                  <span>Someone is typing...</span>
+                  <span>{t("chatPreview.typing")}</span>
                 </motion.div>
               </div>
 
               {/* Input Preview */}
-              <div className="flex gap-3">
-                <div className="flex-1 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center px-4 text-gray-400 text-sm">
-                  Type a message...
+              <div className="flex gap-2 sm:gap-3">
+                <div className="flex-1 h-8 sm:h-10 rounded-lg sm:rounded-xl bg-gray-100 border border-gray-200 flex items-center px-3 sm:px-4 text-gray-400 text-xs sm:text-sm">
+                  {t("chatPreview.inputPlaceholder")}
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orbit-blue to-blue-600 flex items-center justify-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-r from-orbit-blue to-blue-600 flex items-center justify-center shrink-0">
                   <svg
-                    className="w-5 h-5 text-star-white"
+                    className="w-4 h-4 sm:w-5 sm:h-5 text-star-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

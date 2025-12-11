@@ -88,6 +88,13 @@
 /* Base Styles */
 html {
   scroll-behavior: smooth;
+  /* Support for safe areas on iOS */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Safe area padding for bottom elements (like chat input) */
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 body {

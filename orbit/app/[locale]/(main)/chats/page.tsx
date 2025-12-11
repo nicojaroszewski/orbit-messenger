@@ -79,10 +79,10 @@ export default function ChatsPage() {
         {/* Header */}
         <motion.div variants={listItem} className="flex items-center justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-star-white">
+            <h1 className="text-3xl font-bold text-gray-900">
               {t("chat.title")}
             </h1>
-            <p className="text-nebula-gray">{t("chat.subtitle")}</p>
+            <p className="text-gray-500">{t("chat.subtitle")}</p>
           </div>
           <Button onClick={() => setShowNewGroupModal(true)}>
             <Plus className="w-4 h-4 mr-2" />
@@ -114,20 +114,20 @@ export default function ChatsPage() {
               ))}
             </div>
           ) : conversations?.length === 0 ? (
-            <Card variant="glass" className="text-center py-12">
+            <Card className="bg-white border border-gray-200 shadow-sm text-center py-12">
               <CardContent>
-                <Sparkles className="w-12 h-12 text-nebula-gray mx-auto mb-4" />
-                <p className="text-star-white font-medium mb-2">
+                <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-900 font-medium mb-2">
                   {t("chat.noChats")}
                 </p>
-                <p className="text-sm text-nebula-gray mb-6">
+                <p className="text-sm text-gray-500 mb-6">
                   {t("chat.noChatsDescription")}
                 </p>
 
                 {/* Quick Start Chat with Connections */}
                 {connections && connections.length > 0 && (
                   <div className="space-y-4">
-                    <p className="text-sm text-nebula-gray">
+                    <p className="text-sm text-gray-500">
                       {t("chat.startWithConnection")}
                     </p>
                     <div className="flex flex-wrap justify-center gap-2">
@@ -135,14 +135,14 @@ export default function ChatsPage() {
                         <button
                           key={connection!._id}
                           onClick={() => handleStartChat(connection!._id)}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-lunar-graphite/50 hover:bg-lunar-graphite transition-colors"
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
                         >
                           <Avatar
                             src={connection!.avatarUrl}
                             name={connection!.name}
                             size="sm"
                           />
-                          <span className="text-sm text-star-white">
+                          <span className="text-sm text-gray-900">
                             {connection!.name}
                           </span>
                         </button>
@@ -157,13 +157,13 @@ export default function ChatsPage() {
               </CardContent>
             </Card>
           ) : searchTerm ? (
-            <Card variant="glass" className="text-center py-8">
+            <Card className="bg-white border border-gray-200 shadow-sm text-center py-8">
               <CardContent>
-                <Search className="w-10 h-10 text-nebula-gray mx-auto mb-3" />
-                <p className="text-star-white font-medium">
+                <Search className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-900 font-medium">
                   {t("common.noResults")}
                 </p>
-                <p className="text-sm text-nebula-gray mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   {t("chat.noSearchResults")}
                 </p>
               </CardContent>
@@ -226,11 +226,11 @@ function ConversationCard({ conversation, locale, t }: ConversationCardProps) {
 
   return (
     <Link href={`/${locale}/chat/${conversation._id}`}>
-      <Card variant="glass" interactive>
+      <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all cursor-pointer">
         <CardContent className="p-4 flex items-center gap-4">
           {isGroup ? (
             <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-stellar-violet to-orbit-blue flex items-center justify-center">
-              <Users className="w-6 h-6 text-star-white" />
+              <Users className="w-6 h-6 text-white" />
             </div>
           ) : (
             <Avatar
@@ -243,25 +243,25 @@ function ConversationCard({ conversation, locale, t }: ConversationCardProps) {
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <p className="font-medium text-star-white truncate">
+              <p className="font-medium text-gray-900 truncate">
                 {displayName}
               </p>
               {isGroup && (
-                <span className="text-xs text-nebula-gray">
+                <span className="text-xs text-gray-500">
                   ({conversation.participantUsers.length})
                 </span>
               )}
             </div>
-            <p className="text-sm text-nebula-gray truncate">
+            <p className="text-sm text-gray-500 truncate">
               {conversation.lastMessagePreview || t("chat.noMessages")}
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-xs text-nebula-gray">
+            <p className="text-xs text-gray-400">
               {formatRelativeTime(conversation.lastMessageAt, locale)}
             </p>
             {conversation.unreadCount > 0 && (
-              <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-medium bg-orbit-blue text-star-white rounded-full mt-1">
+              <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-xs font-medium bg-orbit-blue text-white rounded-full mt-1">
                 {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
               </span>
             )}
@@ -337,7 +337,7 @@ function NewChatModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-cosmic-midnight/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
@@ -346,11 +346,11 @@ function NewChatModal({
         exit={{ opacity: 0, scale: 0.95 }}
         className="relative w-full max-w-md"
       >
-        <Card variant="glass" className="overflow-hidden">
+        <Card className="bg-white border border-gray-200 shadow-xl overflow-hidden">
           <CardContent className="p-0">
             {/* Header */}
-            <div className="p-4 border-b border-white/10">
-              <h2 className="text-lg font-semibold text-star-white mb-4">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 {t("chat.newChat")}
               </h2>
 
@@ -395,7 +395,7 @@ function NewChatModal({
             </div>
 
             {/* Connections List */}
-            <div className="max-h-64 overflow-y-auto p-2">
+            <div className="max-h-64 overflow-y-auto p-2 bg-gray-50">
               {filteredConnections.length > 0 ? (
                 <div className="space-y-1">
                   {filteredConnections.map((connection) => (
@@ -408,8 +408,8 @@ function NewChatModal({
                       }
                       className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
                         selectedUsers.includes(connection._id)
-                          ? "bg-orbit-blue/20"
-                          : "hover:bg-lunar-graphite/50"
+                          ? "bg-orbit-blue/10 border border-orbit-blue/30"
+                          : "hover:bg-gray-100 border border-transparent"
                       }`}
                     >
                       <Avatar
@@ -420,10 +420,10 @@ function NewChatModal({
                         isOnline={connection.isOnline}
                       />
                       <div className="flex-1 text-left">
-                        <p className="font-medium text-star-white">
+                        <p className="font-medium text-gray-900">
                           {connection.name}
                         </p>
-                        <p className="text-sm text-nebula-gray">
+                        <p className="text-sm text-gray-500">
                           @{connection.username}
                         </p>
                       </div>
@@ -449,8 +449,8 @@ function NewChatModal({
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Users className="w-10 h-10 text-nebula-gray mx-auto mb-2" />
-                  <p className="text-sm text-nebula-gray">
+                  <Users className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">
                     {connections.length === 0
                       ? t("chat.noConnections")
                       : t("common.noResults")}
@@ -460,7 +460,7 @@ function NewChatModal({
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/10 flex justify-end gap-2">
+            <div className="p-4 border-t border-gray-200 flex justify-end gap-2 bg-white">
               <Button variant="secondary" onClick={onClose}>
                 {t("common.cancel")}
               </Button>

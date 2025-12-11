@@ -51,12 +51,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-cosmic-midnight">
+    <div className="min-h-screen bg-white">
       <Sidebar
         invitationCount={invitationCount || 0}
         unreadCount={unreadCount || 0}
       />
-      <main className="ml-20 md:ml-64 min-h-screen">{children}</main>
+      {/* Mobile: full width with top padding for header, Desktop: sidebar margin */}
+      <main className="min-h-screen pt-14 md:pt-0 md:ml-64">{children}</main>
     </div>
   );
 }

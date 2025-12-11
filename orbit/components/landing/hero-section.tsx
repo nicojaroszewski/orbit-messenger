@@ -144,24 +144,6 @@ export function HeroSection() {
           </Link>
         </motion.div>
 
-        {/* Stats Preview */}
-        <motion.div
-          variants={listItem}
-          className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
-        >
-          {[
-            { value: "10K+", label: "Users" },
-            { value: "1M+", label: "Messages" },
-            { value: "50K+", label: "Connections" },
-          ].map((stat, index) => (
-            <div key={index} className="text-center">
-              <p className="text-2xl md:text-3xl font-bold text-orbit-blue">
-                {stat.value}
-              </p>
-              <p className="text-sm text-nebula-gray">{stat.label}</p>
-            </div>
-          ))}
-        </motion.div>
       </motion.div>
 
       {/* Scroll Indicator */}

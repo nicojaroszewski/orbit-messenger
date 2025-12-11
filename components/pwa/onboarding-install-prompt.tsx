@@ -55,11 +55,13 @@ export function OnboardingInstallPrompt() {
         setIsVisible(false);
       } catch (error) {
         console.error("Install failed:", error);
-        // If native install fails, show manual instructions
+        // If native install fails, show manual instructions as fallback
         if (isSamsungBrowser) {
           setShowInstructions("samsung");
         } else if (isAndroid) {
           setShowInstructions("android-other");
+        } else if (isDesktop) {
+          setShowInstructions("desktop");
         }
       } finally {
         setIsInstalling(false);
@@ -70,8 +72,10 @@ export function OnboardingInstallPrompt() {
       setShowInstructions("samsung");
     } else if (isAndroid) {
       setShowInstructions("android-other");
+    } else if (isDesktop) {
+      // Desktop without native install - show instructions
+      setShowInstructions("desktop");
     } else {
-      // Desktop or unsupported browser
       handleDismiss();
     }
   };
@@ -140,9 +144,9 @@ export function OnboardingInstallPrompt() {
                     <span className="hidden sm:inline">How to Install</span>
                   </button>
                 ) : isDesktop ? (
-                  // Desktop without install prompt - Show how button for desktop instructions
+                  // Desktop without native install prompt - show how to install
                   <button
-                    onClick={() => setShowInstructions("desktop")}
+                    onClick={handleInstall}
                     className="px-4 py-2 bg-white text-[#3B82F6] rounded-lg font-semibold text-sm flex items-center gap-1.5 hover:bg-white/90 transition-colors"
                   >
                     <Download className="w-4 h-4" />

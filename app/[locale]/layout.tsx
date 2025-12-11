@@ -6,7 +6,6 @@ import { locales, type Locale } from "@/i18n/config";
 import { ConvexClientProvider } from "@/providers/convex-provider";
 import { PWAProvider } from "@/components/providers/pwa-provider";
 import { NetworkStatus } from "@/components/ui/network-status";
-import { IOSInstallPrompt } from "@/components/pwa/ios-install-prompt";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -61,7 +60,6 @@ export default async function LocaleLayout({
             <NextIntlClientProvider messages={messages}>
               <PWAProvider>
                 <NetworkStatus />
-                <IOSInstallPrompt />
                 {children}
               </PWAProvider>
             </NextIntlClientProvider>

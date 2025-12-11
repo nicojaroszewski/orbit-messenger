@@ -4,6 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Sidebar } from "@/components/navigation";
+import { OnboardingInstallPrompt } from "@/components/pwa/onboarding-install-prompt";
 import { useEffect } from "react";
 
 interface MainLayoutProps {
@@ -58,6 +59,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
       />
       {/* Mobile: full width with top padding for header, Desktop: sidebar margin */}
       <main className="min-h-screen pt-14 md:pt-0 md:ml-64">{children}</main>
+      {/* PWA Install Onboarding - shows after first sign in on mobile */}
+      <OnboardingInstallPrompt />
     </div>
   );
 }

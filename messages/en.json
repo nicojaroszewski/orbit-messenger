@@ -1,0 +1,208 @@
+{
+  "common": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "send": "Send",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "search": "Search",
+    "settings": "Settings",
+    "profile": "Profile",
+    "online": "Online",
+    "offline": "Offline",
+    "away": "Away",
+    "justNow": "just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago",
+    "noResults": "No results found"
+  },
+  "landing": {
+    "hero": {
+      "title": "Welcome to Orbit",
+      "subtitle": "Where conversations move like celestial paths",
+      "description": "Connect, communicate, and build your own digital constellations. A place where messages feel fast, personal, and beautifully fluid.",
+      "cta": "Start Your Orbit",
+      "ctaSecondary": "Learn More"
+    },
+    "features": {
+      "title": "Built for Connection",
+      "chatPreview": {
+        "teamName": "Orbit Team",
+        "online": "Online",
+        "welcome": "Welcome to Orbit! ✨",
+        "reply": "This looks amazing! 🚀",
+        "typing": "Typing...",
+        "inputPlaceholder": "Type a message..."
+      },
+      "realtime": {
+        "title": "Real-Time Messaging",
+        "description": "Messages arrive like shooting stars — instant, beautiful, and impossible to miss."
+      },
+      "discover": {
+        "title": "Discover People",
+        "description": "Find your constellation. Connect with people who share your orbit."
+      },
+      "groups": {
+        "title": "Group Conversations",
+        "description": "Create your own galaxy of conversations. Bring friends together in one space."
+      },
+      "privacy": {
+        "title": "Privacy First",
+        "description": "Your conversations are yours. Encrypted, secure, and always private."
+      }
+    },
+    "social": {
+      "title": "Join Thousands in Orbit",
+      "users": "Active Users",
+      "messages": "Messages Sent",
+      "connections": "Connections Made"
+    },
+    "footer": {
+      "tagline": "Communication that moves like gravity",
+      "copyright": "© {year} Orbit. All rights reserved."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome back to Orbit",
+      "subtitle": "Sign in to continue your journey",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create one"
+    },
+    "signUp": {
+      "title": "Join Orbit",
+      "subtitle": "Start building your digital constellation",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}",
+    "recentChats": "Recent Conversations",
+    "quickActions": "Quick Actions",
+    "startChat": "Start New Chat",
+    "findPeople": "Find People",
+    "viewInvites": "View Invitations"
+  },
+  "chat": {
+    "title": "Chats",
+    "subtitle": "Your conversations",
+    "newMessage": "Type a message...",
+    "typing": "{name} is typing...",
+    "multipleTyping": "{count} people are typing...",
+    "noChats": "No conversations yet",
+    "noChatsDescription": "Start a conversation by finding someone in Discover",
+    "startConversation": "Start a conversation",
+    "sendFirstMessage": "Send a message to {name} to start chatting",
+    "messageDelivered": "Delivered",
+    "messageSeen": "Seen",
+    "messageDeleted": "This message was deleted",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "newChat": "New Chat",
+    "directMessage": "Direct",
+    "groupChat": "Group",
+    "groupName": "Group Name",
+    "groupNamePlaceholder": "Enter group name...",
+    "addParticipants": "Add Participants",
+    "createGroup": "Create Group",
+    "leaveGroup": "Leave Group",
+    "deleteChat": "Delete Chat",
+    "muteNotifications": "Mute Notifications",
+    "unmuteNotifications": "Unmute Notifications",
+    "searchPlaceholder": "Search conversations...",
+    "searchConnections": "Search connections...",
+    "noSearchResults": "No conversations match your search",
+    "noConnections": "No connections yet. Discover people to start chatting!",
+    "startWithConnection": "Start chatting with a connection:",
+    "noMessages": "No messages yet",
+    "messagePlaceholder": "Type a message...",
+    "online": "Online",
+    "offline": "Offline",
+    "members": "members"
+  },
+  "discover": {
+    "title": "Discover People",
+    "subtitle": "Find your constellation",
+    "searchPlaceholder": "Search by username...",
+    "noResults": "No users found",
+    "noResultsDescription": "Try a different search term",
+    "suggested": "Suggested for You",
+    "sendInvite": "Send Invite",
+    "inviteSent": "Invite Sent",
+    "alreadyConnected": "Already Connected"
+  },
+  "invitations": {
+    "title": "Invitations",
+    "subtitle": "Connection requests",
+    "pending": "Pending",
+    "received": "Received",
+    "sent": "Sent",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancel": "Cancel Invite",
+    "noInvitations": "No invitations",
+    "noInvitationsDescription": "When someone sends you an invite, it will appear here",
+    "accepted": "Accepted",
+    "declined": "Declined",
+    "inviteMessage": "Add a message (optional)",
+    "sendInvitation": "Send Invitation"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "displayName": "Display Name",
+    "username": "Username",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us about yourself...",
+    "status": "Status",
+    "statusPlaceholder": "What's on your mind?",
+    "joined": "Joined {date}",
+    "connections": "Connections",
+    "startChat": "Start Chat",
+    "removeConnection": "Remove Connection"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "enableNotifications": "Enable Notifications",
+    "soundEnabled": "Sound",
+    "desktopNotifications": "Desktop Notifications",
+    "emailNotifications": "Email Notifications",
+    "showOnlineStatus": "Show Online Status",
+    "readReceipts": "Read Receipts",
+    "typingIndicators": "Typing Indicators",
+    "account": "Account",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarning": "This action cannot be undone. All your data will be permanently deleted."
+  },
+  "errors": {
+    "notFound": "Page Not Found",
+    "notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go Home",
+    "serverError": "Server Error",
+    "serverErrorDescription": "Something went wrong on our end. Please try again later.",
+    "unauthorized": "Unauthorized",
+    "unauthorizedDescription": "You need to sign in to access this page.",
+    "connectionFailed": "Connection Failed",
+    "connectionFailedDescription": "Unable to connect to the server. Please check your internet connection."
+  }
+}
